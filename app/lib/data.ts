@@ -1,4 +1,6 @@
 import { sql } from '@vercel/postgres';
+import { unstable_noStore as noStore } from 'next/cache';
+
 import {
   CustomerField,
   CustomersTableType,
@@ -12,6 +14,13 @@ import { formatCurrency } from './utils';
 
 export async function fetchRevenue() {
   // Add noStore() here to prevent the response from being cached.
+  await new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, 4000);
+  });
+
+  noStore();
   // This is equivalent to in fetch(..., {cache: 'no-store'}).
 
   try {
@@ -33,6 +42,11 @@ export async function fetchRevenue() {
 }
 
 export async function fetchLatestInvoices() {
+  await new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, 2000);
+  });
   try {
     const data = await sql<LatestInvoiceRaw>`
       SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
@@ -45,6 +59,7 @@ export async function fetchLatestInvoices() {
       ...invoice,
       amount: formatCurrency(invoice.amount),
     }));
+
     return latestInvoices;
   } catch (error) {
     console.error('Database Error:', error);
@@ -53,6 +68,11 @@ export async function fetchLatestInvoices() {
 }
 
 export async function fetchCardData() {
+  await new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, 1500);
+  });
   try {
     // You can probably combine these into a single SQL query
     // However, we are intentionally splitting them to demonstrate
